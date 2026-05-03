@@ -1,5 +1,10 @@
 <template>
     <div class="calendar">
+        <div class="gridHeader" v-if="showCalendarMonthOrWeek">
+            <div class="cellDaysOfTheWeek" v-for="day in t.dayOfTheWeek" :key="day">
+                {{ day }}
+            </div>
+        </div>
         <div class="grid">
             <div class="cell" v-for="(day, index) in days" :key="index" :style="{color: day.color, backgroundColor: day.backgroundColor}" :class="{'isToday' : day.currentday}" @click="addQuestionOrChecklist(day.number, day.month)">
                 {{ day.number }}
@@ -8,11 +13,28 @@
     </div>
 </template>
 <script>
+    import { translations } from '@/locales/translate.js'
+    import { activeLang, defaultCalendarSet } from '@/config/config.js'
+    import { backgroundColor, fontColor, secondaryColor, tertiaryColor, invertedBackgroundColor } from '@/config/styles.js';
+
     export default {
         name: 'CalendarView',
         data(){
             return {
-                days: createACalendar()
+                days: createACalendar(),
+                lang: activeLang,
+                defaultCalendarSet: defaultCalendarSet,
+                backgroundColor: backgroundColor,
+                fontColor: fontColor,
+                secondaryColor: secondaryColor,
+                tertiaryColor: tertiaryColor,
+                invertedBackgroundColor: invertedBackgroundColor,
+                showCalendarMonthOrWeek: defaultCalendarSet === 'W' || defaultCalendarSet === 'M',
+            }
+        },
+        computed: {
+            t() {
+                return translations[this.lang]
             }
         },
         methods: {
@@ -25,6 +47,30 @@
 
     function createACalendar(){
 
+        const calendar = defaultCalendarSet;
+        if(calendar == 'T'){
+            return createToday();
+        }
+        if(calendar == 'W'){
+            return createWeek();
+        }
+        if(calendar == 'M'){
+            return createMonth();
+        }
+        if(calendar == 'Y'){
+            return createYear();
+        } 
+    }
+
+    function createToday(){
+    }
+
+    function createWeek(){
+
+    }
+
+    function createMonth(){
+        
         const today = new Date();
         const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);        
         const start = new Date(firstDay);
@@ -49,15 +95,18 @@
                 currentday: currentDay,
             })
         }
-        console.log(days);
     
-        return days; 
+        return days;
+    }
+
+    function createYear(){
+        
     }
 
 </script>
 <style>
     .calendar{
-        background-color: #131314;
+        background-color: v-bind(backgroundColor);
         width: 90vw;
         min-width: 150px;
         min-height: 90dvh;
@@ -65,7 +114,7 @@
         border-radius: 50%;
     }
     .isToday{
-        background-color: #2894f2 !important;
+        background-color: v-bind(secondaryColor) !important;
     }
     .cell{
         padding: 5px;
@@ -76,11 +125,30 @@
         opacity: 0.9;
     }
     .grid{
-        background-color: #ffffff;
+        background-color: v-bind(invertedBackgroundColor);
         display: grid;
         grid-template-columns: repeat(7, 1fr);
         height: 90svh;
-        border-radius: 50%;
+    }
+
+    .gridHeader{
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        height: 10svh;
+        max-height: 35px;
+        min-height: 20px;
+    }
+
+    .cellDaysOfTheWeek{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2px;
+        font-size: 13px;
+        background-color: v-bind(tertiaryColor);
+        color: v-bind(fontColor);
+        border: 1px solid #c6c6c6;
+        max-height: 49px;
 
     }
 </style>
